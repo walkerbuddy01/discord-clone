@@ -34,6 +34,8 @@ import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { useModal } from "@/hooks/create-modal";
 import { ChannelType } from "@prisma/client";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z
@@ -50,15 +52,22 @@ const formSchema = z.object({
 function CreateChannel() {
   const router = useRouter();
   const params = useParams();
-  const { isOpen, onClose, type } = useModal();
+  const { isOpen, onClose, type, data } = useModal();
+  const { channelType } = data;
   const modalOpen = isOpen && type === "createChannel";
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: ChannelType.TEXT,
+      type: channelType || ChannelType.TEXT,
     },
   });
+
+  useEffect(() => {
+    if (channelType) {
+      form.setValue("type", channelType);
+    }
+  }, [channelType, form]);
 
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -161,7 +170,8 @@ function CreateChannel() {
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
               <Button disabled={isLoading} type="submit" variant="primary">
-                Create Server
+                Create Server{" "}
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
               </Button>
             </DialogFooter>
           </form>
