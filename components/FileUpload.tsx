@@ -23,7 +23,7 @@ function FileUpload({ endpoint, value, onChange }: FileUploadProps) {
           loading="eager"
         />
         <button
-          onClick={() => onChange("") }
+          onClick={() => onChange("")}
           className="absolute top-0 right-0 bg-rose-600 rounded-full p-1 text-white shadow-sm"
           type="button"
         >

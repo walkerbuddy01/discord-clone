@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/create-modal";
 import useOrigin from "@/hooks/use-origin";
 import { useState } from "react";
+import currentUser from "@/lib/currentUser";
 
 function InviteModal() {
   const { onOpen, isOpen, onClose, type, data } = useModal();
@@ -22,7 +23,7 @@ function InviteModal() {
 
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsloading] = useState(false);
-  
+
   const { server } = data;
   const inviteUrl = `${origin}/invite/${server?.inviteCode}`;
 
@@ -84,6 +85,7 @@ function InviteModal() {
               )}
             </Button>
           </div>
+
           <Button
             onClick={onNew}
             disabled={isLoading}

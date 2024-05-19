@@ -5,7 +5,10 @@ export type ModelType =
   | "createServer"
   | "invite"
   | "serverSettings"
-  | "manageMembers";
+  | "manageMembers"
+  | "createChannel"
+  | "leaveServer"
+  | "deleteServer";
 
 interface ModalData {
   server?: Server;
