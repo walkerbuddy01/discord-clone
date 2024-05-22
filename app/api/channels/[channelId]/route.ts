@@ -56,3 +56,65 @@ export async function DELETE(
     return new NextResponse("INTERNAL SERVER ERROR", { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: { channelId: string } }
+) {
+  try {
+    const profile = await currentUser();
+    const { searchParams } = new URL(req.url);
+    const { name } = await req.json();
+    const serverId = searchParams.get("serverId");
+    if (!profile) {
+      return new NextResponse("UNAUTHORIZED", { status: 401 });
+    }
+
+    if (!serverId) {
+      return new NextResponse(`SERVER ID is missing :${serverId}`, {
+        status: 400,
+      });
+    }
+    if (name === "general") {
+      return new NextResponse("NAME CANNOT BE GENERAL ", { status: 401 });
+    }
+
+    if (!params?.channelId) {
+      return new NextResponse("CHANNEL ID is missing ", { status: 400 });
+    }
+
+    const server = await db.server.update({
+      where: {
+        id: serverId,
+        members: {
+          some: {
+            profileId: profile.id,
+            role: {
+              not: MemberRoles.GUEST,
+            },
+          },
+        },
+      },
+      data: {
+        Channel: {
+          update: {
+            where: {
+              id: params.channelId,
+              name: {
+                not: "general",
+              },
+            },
+            data: {
+              name,
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(server);
+  } catch (error) {
+    console.log("ERROR IN PATCH CHANNEL", error);
+    return new NextResponse("INTERNAL SERVER ERROR:", { status: 500 });
+  }
+}

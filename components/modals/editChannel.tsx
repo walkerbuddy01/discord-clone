@@ -49,12 +49,12 @@ const formSchema = z.object({
   type: z.nativeEnum(ChannelType),
 });
 
-function CreateChannel() {
+function EditChannel() {
   const router = useRouter();
   const params = useParams();
   const { isOpen, onClose, type, data } = useModal();
-  const { channelType } = data;
-  const modalOpen = isOpen && type === "createChannel";
+  const { channelType, channel } = data;
+  const modalOpen = isOpen && type === "editChannel";
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,25 +64,29 @@ function CreateChannel() {
   });
 
   useEffect(() => {
-    if (channelType) {
-      form.setValue("type", channelType);
+    if (channel) {
+      form.setValue("name", channel?.name || "");
+      form.setValue("type", channel?.type);
     }
-  }, [channelType, form]);
+
+    return () => {
+      form.setValue("name", "");
+      form.setValue("type", ChannelType.TEXT);
+    };
+  }, [channel, form]);
 
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const url = qs.stringifyUrl({
-        url: `/api/channels/`,
+        url: `/api/channels/${channel?.id}`,
         query: {
           serverId: params?.serverId,
         },
       });
-      await axios.post(url, values);
-      form.reset();
-      router.refresh();
-      // window.location.reload();
+      await axios.patch(url, values);
       onClose();
+      router.refresh();
     } catch (error) {
       console.log("Error in Server:", error);
     }
@@ -102,7 +106,7 @@ function CreateChannel() {
       >
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Customize your Channel
+            Customize your server
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -140,7 +144,7 @@ function CreateChannel() {
                   <FormItem>
                     <FormLabel>Channel type</FormLabel>
                     <Select
-                      disabled={isLoading}
+                      disabled={true}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
@@ -170,7 +174,7 @@ function CreateChannel() {
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
               <Button disabled={isLoading} type="submit" variant="primary">
-                Create Server{" "}
+                Update Channel{" "}
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
               </Button>
             </DialogFooter>
@@ -181,4 +185,4 @@ function CreateChannel() {
   );
 }
 
-export default CreateChannel;
+export default EditChannel;

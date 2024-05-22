@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import axios from "axios";
 import qs from "query-string";
@@ -43,7 +43,7 @@ function DeleteChannelModal() {
       router.push(`/servers/${server?.id}`);
       router.refresh();
     } catch (error) {
-      console.log("ERROR IN CONFIRMING", error);
+      console.log("ERROR IN CONFIRMING", error); 
     } finally {
       setIsloading(false);
     }
