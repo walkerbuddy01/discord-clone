@@ -4,6 +4,8 @@ import currentUser from "@/lib/currentUser";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import ChatHeader from "@/components/chats/ChatHeader";
+import ChatInput from "@/components/chats/ChatInput";
+import ChatMessages from "@/components/chats/ChatMessages";
 
 interface ChannelPageProps {
   params: {
@@ -42,6 +44,31 @@ async function ChannelPage({ params }: ChannelPageProps) {
         serverId={params.serverId}
         name={channel.name}
         type="channel"
+      />
+      <ChatMessages
+        name={channel.name}
+        chatId={channel.id}
+        member={member}
+        type="channel"
+        apiUrl="/api/messages"
+        socketUrl="/api/socket/messages"
+        socketQuery={{
+          channelId: channel.id,
+          serverId: channel.serverId,
+        }}
+        paramKey ={"channelId"}
+        paramValue={channel.id}
+
+      />
+
+      <ChatInput
+        name={channel.name}
+        type="channel"
+        query={{
+          channelId: channel.id,
+          serverId: channel.serverId,
+        }}
+        apiUrl="/api/socket/message"
       />
     </div>
   );
