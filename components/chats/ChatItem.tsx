@@ -26,6 +26,9 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/hooks/create-modal";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const roleIconMap = {
   [MemberRoles.GUEST]: null,
@@ -66,8 +69,10 @@ function ChatItem({
   socketUrl,
   socketQuery,
 }: ChatItemProps) {
+  const params = useParams();
+  const router = useRouter();
+  const { onOpen } = useModal();
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const fileType = fileUrl?.split(".").pop();
 
   useEffect(() => {
@@ -103,29 +108,45 @@ function ChatItem({
   const isPDF = fileType === "pdf" && fileUrl;
   const isImage = !isPDF && fileUrl;
 
+  const onMemberClick = () => {
+    if (Member.id === currentMember.id) {
+      return;
+    }
+    router.push(`/servers/${params?.serverId}/conversation/${Member.id}`);
+  };
+
   const isLoading = form.formState.isSubmitting;
 
   const onEdited = async (value: z.infer<typeof formSchema>) => {
     try {
-      
       const url = qs.stringifyUrl({
         url: `${socketUrl}/${id}`,
         query: socketQuery,
       });
       await axios.patch(url, value);
-    } catch (error) {}
+      form.reset();
+      setIsEditing(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <div className="relative group flex items-center hover:bg-black/5 p-4 transition w-full ">
       <div className="group flex gap-x-2 items-start w-full">
-        <div className="cursor-pointer hover:drop-shadow-md transition">
+        <div
+          onClick={onMemberClick}
+          className="cursor-pointer hover:drop-shadow-md transition"
+        >
           <UserAvatar src={Member.profile.imageUrl} />
         </div>
         <div className="flex flex-col w-full ">
           <div className="flex items-center gap-x-2">
             <div className="flex items-center">
-              <p className="font-semibold text-sm hover:underline cursor-pointer ">
+              <p
+                onClick={onMemberClick}
+                className="font-semibold text-sm hover:underline cursor-pointer "
+              >
                 {Member.profile.name}
               </p>
               <ActionTooltip label={Member.role}>
@@ -214,7 +235,7 @@ function ChatItem({
                 </Button>
               </form>
               <span className="text-[10px] mt-1 text-zinc-400 ">
-                Press esc to 'cancel' or Press Enter to 'save'
+                Press esc to cancel or Press Enter to save
               </span>
             </Form>
           )}
@@ -232,7 +253,16 @@ function ChatItem({
           )}
           {canDeleteMessage && (
             <ActionTooltip label="Delete" side="top">
-              <Trash2 className="cursor-pointer h-4 w-4 ml-auto text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition" />
+              <Trash2
+                onClick={() =>
+                  onOpen("deleteMessage", {
+                    content,
+                    apiUrl: `${socketUrl}/${id}`,
+                    query: socketQuery,
+                  })
+                }
+                className="cursor-pointer h-4 w-4 ml-auto text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition"
+              />
             </ActionTooltip>
           )}
         </div>

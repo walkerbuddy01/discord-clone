@@ -11,6 +11,7 @@ import DeleteServerModal from "@/components/modals/deleteServerModal";
 import DeleteChannelModal from "@/components/modals/deleteChannelModal";
 import EditChannel from "@/components/modals/editChannel";
 import MessageAttachment from "@/components/modals/messageAttachment";
+import DeleteMessageModal from "../modals/deleteMessage";
 
 function ModalProvider() {
   const [isMount, setIsMount] = useState(false);
@@ -22,6 +23,7 @@ function ModalProvider() {
   }
   return (
     <div>
+      <DeleteMessageModal />
       <MessageAttachment />
       <EditChannel />
       <DeleteChannelModal />
