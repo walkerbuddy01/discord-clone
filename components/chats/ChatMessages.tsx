@@ -103,6 +103,7 @@ function ChatMessages({
           <Fragment key={i}>
             {group.items.map((message: MessagesWithMemberWithProfile) => (
               <ChatItem
+                key={message.id}
                 id={message.id}
                 Member={message.member}
                 content={message.Content}
